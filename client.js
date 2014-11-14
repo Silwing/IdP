@@ -1,19 +1,19 @@
 var http = require("http"),
 	url = require("url"),
 	qs = require("querystring"),
-	authzServer = { hostname: "localhost", 
-	                port: 8889,
+	authzServer = { hostname: "78.143.88.62", 
+	                port: 8080,
 	                paths: {
 	                	redirect: "/login",
 	                	access: "/access"
 	                }},
-	resServer = { hostname: "localhost",
-	              port: 8890,
+	resServer = { hostname: "78.143.88.62",
+	              port: 8081,
 	              paths: {
 	              	info: "/info"
 	              }},
-	selfServer = { hostname: "localhost", 
-	               port: 8888,
+	selfServer = { hostname: "78.143.88.62", 
+	               port: 9002,
 	               paths: {
 	               	authorize: "/authorize"
 	             }},
@@ -106,8 +106,8 @@ var http = require("http"),
         			    		.on("end", function() {
         			    			var resObj = JSON.parse(resData);
         			    			sendHeader(response);
-        			    			response.write("<p>Hej " + resObj.name + "</p>");
-        			    			response.write("<p>Tillykke! Du er nu logget ind.</p>");
+        			    			response.write("<p>Hi " + resObj.name + "</p>");
+        			    			response.write("<p>Congratulations! You are now logged in.</p>");
         			    			sendFooter(response);
         			    		});
         			    	}
@@ -134,7 +134,7 @@ var http = require("http"),
         		.on("end", function() {
         			var dataObj = JSON.parse(jsonData);
         			sendHeader(response);
-        			response.write("<p>Vi kunne desværre ikke logge dig ind :(</p>");
+        			response.write("<p>We were not able to log you in :(</p>");
         			sendFooter(response);
         		})
         	}
@@ -170,9 +170,9 @@ var http = require("http"),
 		console.log("Usage: node client.js clientID [port] [hostname]");
 		return;
 	}
-	if(process.argv.size > 3)
+	if(process.argv.length > 3)
 		selfServer.port = process.argv[3];
-	if(process.argv.size > 4)
+	if(process.argv.length > 4)
 		selfServer.hostname = process.argv[4];
 
 	clientID = process.argv[2];

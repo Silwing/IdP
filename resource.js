@@ -1,8 +1,8 @@
 var http = require("http"),
 	url = require("url"),
 	qs = require("querystring"),
-	authzServer = { hostname: "localhost", 
-	                port: 8889,
+	authzServer = { hostname: "78.143.88.62", 
+	                port: 8080,
 	                paths: {
 	                	verify: "/verify"
 	                }},
@@ -72,5 +72,5 @@ var http = require("http"),
 		}
 	}
 
-	http.createServer(onRequest).listen(8890);
+	http.createServer(onRequest).listen(8081);
 })();

@@ -1,9 +1,6 @@
 var http = require("http"),
 	url = require("url"),
 	qs = require("querystring"),
-	clientSeverName = "localhost",
-	clientSeverPort = "8888",
-	clientSever = "http://" + clientSeverName + ":" + clientSeverPort + "/",
 	users = [{uid: 1, username: "user1",password: "1234"},{uid: 2, username: "user2", password: "4321"}],
 	clients = ["cid123456"],
 	accessArray = [],
@@ -43,7 +40,7 @@ var http = require("http"),
 	function login(request,response,urlObj) {
 		var clientid = urlObj.query.clientId;
 		var responsetype = urlObj.query.responseType;
-		var returnurl = urlObj.query.returnurl;
+		//var returnurl = urlObj.query.returnUrl;
 			
 		if(responsetype != "code"){
 			error(response,"The response type must be 'code'");
@@ -77,7 +74,7 @@ var http = require("http"),
 		response.write("<input type=\"password\" name=\"password\">");
 		response.write("<br><br>");
 		response.write("<input type=\"hidden\" name=\"clientId\" value=\"cid123456\">");
-		response.write("<input type=\"hidden\" name=\"returnUrl\" value=\"http%3A%2F%2Flocalhost%3A8888%2Fauthorize\">");
+		response.write("<input type=\"hidden\" name=\"returnUrl\" value=\""+urlObj.query.returnUrl+"\">");
 		response.write("<input type=\"submit\" value=\"login\"></fieldset>");
 		response.write("</form>");
 
@@ -188,6 +185,6 @@ var http = require("http"),
 		return;
 	}
 	
-	http.createServer(onRequest).listen(8889);
+	http.createServer(onRequest).listen(8080);
 
 })();
