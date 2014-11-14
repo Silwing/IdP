@@ -29,6 +29,7 @@ var http = require("http"),
         		})
         		.on("end", function() {
         			var dataObj = JSON.parse(jsonData);
+        			console.log(dataObj);
         			for(var i = 0; i < users.length; i++) {
         				if(dataObj.uid == users[i].uid) {
         					response.writeHead(200, {"Content-Type": "application/json"});

@@ -4,7 +4,7 @@ var http = require("http"),
 	clientSeverName = "localhost",
 	clientSeverPort = "8888",
 	clientSever = "http://" + clientSeverName + ":" + clientSeverPort + "/",
-	users = [{uid: 1, username: "user1",password: "1234"},{username: "user2", password: "4321"}],
+	users = [{uid: 1, username: "user1",password: "1234"},{uid: 2, username: "user2", password: "4321"}],
 	clients = ["cid123456"],
 	accessArray = [],
 	acCounter = 0,
@@ -96,10 +96,10 @@ var http = require("http"),
 		var clientid = urlObj.query.clientId;
 		var returnurl = urlObj.query.returnUrl;
 				
-		for(i = 0; i < users.length; i++){
+		for(var i = 0; i < users.length; i++){
 			if(username == users[i].username && password == users[i].password){
-				for(i = 0; i < clients.length; i++){
-					if(clientid == clients[i]){
+				for(var j = 0; j < clients.length; j++){
+					if(clientid == clients[j]){
 						var code = "ac" + acCounter;
 						accessArray.push({cid: clientid, uid: users[i].uid, code: code, token: "at" + atCounter});
 						acCounter++;
@@ -109,9 +109,9 @@ var http = require("http"),
 						return;
 					}
 				}
+				error(response, "Invalid client ID");
+				return;
 			}
-			error(response, "Invalid client ID");
-			return;
 		}
 		
 		error(response,"Wrong username or password");			
@@ -144,8 +144,7 @@ var http = require("http"),
 	function verify(request,response,urlObj) {
 		var token = urlObj.query.accessToken;
 		var i;
-		console.log(token);
-		console.log(accessArray);
+
 		for(i = 0; i < accessArray.length; i++){
 			if(token == accessArray[i].token){
 				response.writeHead(200, {"Content-Type": "application/json"});
