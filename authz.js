@@ -4,8 +4,11 @@ var http = require("http"),
 	clientSeverName = "localhost",
 	clientSeverPort = "8888",
 	clientSever = "http://" + clientSeverName + ":" + clientSeverPort + "/",
-	users = [{username: "user1",password: "1234"},{username: "user2", password: "4321"}],
-	clients = [{cid: "cid123456", code: "ac123", token: "at42"}];
+	users = [{uid: 1, username: "user1",password: "1234"},{username: "user2", password: "4321"}],
+	clients = ["cid123456"],
+	access = [{cid: "cid123456", uid: 1, code: "ac123", token: "at42"}],
+	acCounter = 0,
+	atCounter = 0;
 
 
 (function start() {
@@ -92,27 +95,27 @@ var http = require("http"),
 		var password = urlObj.query.password;
 		var clientid = urlObj.query.clientId;
 		var returnurl = urlObj.query.returnUrl;
-		var valid = false;
-		
+				
 		for(i = 0; i < users.length; i++){
 			if(username == users[i].username && password == users[i].password){
-				valid = true;
-				break;
-			}
-		}
-					
-		if(valid){
-			for(i = 0; i < clients.length; i++){
-				if(clientid == clients[i].cid){
-					response.writeHead(303, {"Location": qs.unescape(returnurl) + "?" + qs.stringify({authzCode: clients[i].code})});
-					response.end();
-					return;
+				for(i = 0; i < clients.length; i++){
+					if(clientid == clients[i]){
+						var code = "ac" + acCounter;
+						access[access.length] = {cid: clientid, uid: users[i].uid, code: code, token: "at" + atCounter};
+						acCounter++;
+						atCounter++;
+						response.writeHead(303, {"Location": qs.unescape(returnurl) + "?" + qs.stringify({authzCode: code})});
+						response.end();
+						return;
+					}
 				}
 			}
 			error(response, "Invalid client ID");
-		} else {
-			error(response,"Wrong username or password");			
+			return;
 		}
+		
+		error(response,"Wrong username or password");			
+		
 	}
 	
 	/*
@@ -123,10 +126,10 @@ var http = require("http"),
 		var clientid = urlObj.query.clientId;
 		var acode = urlObj.query.authzCode;
 		
-		for(i = 0; i < clients.length; i++){
-			if(clientid == clients[i].cid && acode == clients[i].code){
+		for(i = 0; i < access.length; i++){
+			if(clientid == access[i].cid && acode == access[i].code){
 				response.writeHead(200, {"Content-Type": "application/json"});
-				response.write(JSON.stringify({accessToken: clients[i].token, tokenType: "bearer"}));
+				response.write(JSON.stringify({accessToken: access[i].token, tokenType: "bearer"}));
 				response.end();
 				return;
 			}
@@ -140,28 +143,23 @@ var http = require("http"),
 	*/
 	function verify(request,response,urlObj) {
 		var token = urlObj.query.accessToken;
-		var valid = false;
+		var i;
 		
-		if(accesstokens.length > 0){
-			for(i = 0; i < accesstokens.length; i++){
-				if(token == accesstokens[i]){
-					valid = true;
-					break;
-				}
+		for(i = 0; i < access.length; i++){
+			if(token == access[i].token){
+				response.writeHead(200, {"Content-Type": "application/json"});
+				response.write(JSON.stringify({uid: access[i].uid}));
+				response.end();
+				break;
 			}
 		}
 		
-		if(valid){
-			// todo: Returnerer valid eller invalid
-			response.writeHead(200, {"Content-Type": "text/html"});
-			response.write("verify");
-			response.write(" valid accesstoken");
-			response.end();
-		} else{
-			// error
+		if(i == access.length){
 			error(response,"Not a valid access token");
 		}
-		
+		else{
+			access.splice(i,1);
+		}	
 	}
 	
 	
