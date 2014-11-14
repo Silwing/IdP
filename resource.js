@@ -7,8 +7,8 @@ var http = require("http"),
 	                	verify: "/verify"
 	                }},
 	users = [
-	    {userid: 1, name: "Test User 1"},
-	    {userid: 2, name: "Test User 2"}
+	    {uid: 1, name: "Test User 1"},
+	    {uid: 2, name: "Test User 2"}
 	];
 
 (function start(){
@@ -30,7 +30,7 @@ var http = require("http"),
         		.on("end", function() {
         			var dataObj = JSON.parse(jsonData);
         			for(var i = 0; i < users.length; i++) {
-        				if(dataObj.userid == users[i].userid) {
+        				if(dataObj.uid == users[i].uid) {
         					response.writeHead(200, {"Content-Type": "application/json"});
         					response.write(JSON.stringify({name: users[i].name}));
         					response.end();
@@ -57,7 +57,7 @@ var http = require("http"),
 	}
 
 	function onRequest(request, response) {
-		var urlObj = url.parse(request.url);
+		var urlObj = url.parse(request.url, true);
 
 		switch(urlObj.pathname) {
 			case "/info":

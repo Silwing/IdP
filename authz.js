@@ -6,7 +6,7 @@ var http = require("http"),
 	clientSever = "http://" + clientSeverName + ":" + clientSeverPort + "/",
 	users = [{uid: 1, username: "user1",password: "1234"},{username: "user2", password: "4321"}],
 	clients = ["cid123456"],
-	access = [{cid: "cid123456", uid: 1, code: "ac123", token: "at42"}],
+	accessArray = [],
 	acCounter = 0,
 	atCounter = 0;
 
@@ -101,7 +101,7 @@ var http = require("http"),
 				for(i = 0; i < clients.length; i++){
 					if(clientid == clients[i]){
 						var code = "ac" + acCounter;
-						access[access.length] = {cid: clientid, uid: users[i].uid, code: code, token: "at" + atCounter};
+						accessArray.push({cid: clientid, uid: users[i].uid, code: code, token: "at" + atCounter});
 						acCounter++;
 						atCounter++;
 						response.writeHead(303, {"Location": qs.unescape(returnurl) + "?" + qs.stringify({authzCode: code})});
@@ -126,10 +126,10 @@ var http = require("http"),
 		var clientid = urlObj.query.clientId;
 		var acode = urlObj.query.authzCode;
 		
-		for(i = 0; i < access.length; i++){
-			if(clientid == access[i].cid && acode == access[i].code){
+		for(i = 0; i < accessArray.length; i++){
+			if(clientid == accessArray[i].cid && acode == accessArray[i].code){
 				response.writeHead(200, {"Content-Type": "application/json"});
-				response.write(JSON.stringify({accessToken: access[i].token, tokenType: "bearer"}));
+				response.write(JSON.stringify({accessToken: accessArray[i].token, tokenType: "bearer"}));
 				response.end();
 				return;
 			}
@@ -144,28 +144,31 @@ var http = require("http"),
 	function verify(request,response,urlObj) {
 		var token = urlObj.query.accessToken;
 		var i;
-		
-		for(i = 0; i < access.length; i++){
-			if(token == access[i].token){
+		console.log(token);
+		console.log(accessArray);
+		for(i = 0; i < accessArray.length; i++){
+			if(token == accessArray[i].token){
 				response.writeHead(200, {"Content-Type": "application/json"});
-				response.write(JSON.stringify({uid: access[i].uid}));
+				response.write(JSON.stringify({uid: accessArray[i].uid}));
 				response.end();
 				break;
 			}
 		}
 		
-		if(i == access.length){
-			error(response,"Not a valid access token");
+		if(i == accessArray.length){
+			response.writeHead(400, {"Content-Type": "application/json"});
+			response.write(JSON.stringify({error: "Not a valid access token"}));
+			response.end();
 		}
 		else{
-			access.splice(i,1);
+			accessArray.splice(i,1);
 		}	
 	}
 	
 	
 	function checkClientId(response, clientid) {
 		for(var i = 0; i < clients.length; i++) {
-			if(clients[i].cid == clientid)
+			if(clients[i] == clientid)
 				return true;
 		}
 		error(response, "Client with id " + clientid + " is not a registered client");

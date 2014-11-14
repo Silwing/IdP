@@ -22,12 +22,12 @@ var http = require("http"),
 	responseType = "code",
 	accessToken = undefined, tokenType = undefined;
 
-nock("http://" + resServer.hostname + ":" + resServer.port)
+/*nock("http://" + resServer.hostname + ":" + resServer.port)
 .filteringPath(function(path) {
 	return "/info";
 })
 .get("/info")
-.reply(200, {name: "Testnavn"});
+.reply(200, {name: "Testnavn"});*/
 
 (function start() {
 
@@ -119,7 +119,19 @@ nock("http://" + resServer.hostname + ":" + resServer.port)
         			    			sendFooter(response);
         			    		});
         			    	}
-        			    });
+        			    	else if(resResp.statusCode == 400) {
+        			    		var resData = "";
+        			    		resResp.on("data", function(chunk) {
+        			    			resData += chunk;
+        			    		})
+        			    		.on("end", function() {
+        			    			var resObj = JSON.parse(resData);
+        			    			sendHeader(response);
+        			    			response.write("<p>"+resObj.error+"</p>");
+        			    			sendFooter(response);
+        			    		});
+        			    	}
+        			    }).on("error", function(err) { console.log("Error:");console.log(err); });
         		});
         	} else if(authResp.statusCode == 400) {
         		authResp.setEncoding("utf8");
