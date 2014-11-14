@@ -50,12 +50,23 @@ var http = require("http"),
 			return;
 		}
 			
-		response.writeHead(200, {"Content-Type": "text/plain"});
 		//todo: returner login side til browser
-		response.write("login");
-		console.log(clientid);
-		console.log(responsetype);
-			
+		userLogin(request,response,urlObj);
+	}
+	
+	function userLogin(request,response,urlObj){
+		response.writeHead(200, {"Content-Type": "text/html"});
+		response.write("<!DOCTYPE html>");
+		response.write("<html>");
+		response.write("<head>");
+		response.write("<title>Login</title>");
+		response.write("</head>");
+		response.write("<body>");
+		
+		response.write("<h1>Please login</h1>");
+				
+		response.write("</body>");
+		response.write("</html>");
 		response.end();
 	}
 	
