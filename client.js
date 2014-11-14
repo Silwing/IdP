@@ -1,7 +1,6 @@
 var http = require("http"),
 	url = require("url"),
 	qs = require("querystring"),
-	nock = require("nock"), // TODO: remove in final version
 	authzServer = { hostname: "localhost", 
 	                port: 8889,
 	                paths: {
@@ -21,13 +20,6 @@ var http = require("http"),
 	clientID = "",
 	responseType = "code",
 	accessToken = undefined, tokenType = undefined;
-
-/*nock("http://" + resServer.hostname + ":" + resServer.port)
-.filteringPath(function(path) {
-	return "/info";
-})
-.get("/info")
-.reply(200, {name: "Testnavn"});*/
 
 (function start() {
 
