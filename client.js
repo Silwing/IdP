@@ -24,9 +24,9 @@ var http = require("http"),
 
 nock("http://" + resServer.hostname + ":" + resServer.port)
 .filteringPath(function(path) {
-	return resServer.paths.info;
+	return "/info";
 })
-.get(resServer.paths.info)
+.get("/info")
 .reply(200, {name: "Testnavn"});
 
 (function start() {
