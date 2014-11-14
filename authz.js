@@ -64,7 +64,20 @@ var http = require("http"),
 		response.write("<body>");
 		
 		response.write("<h1>Please login</h1>");
-				
+		response.write("<form action=\"authenticate\" method=\"GET\">");
+		response.write("<fieldset>");
+		response.write("<legend>Login information:</legend>");
+		response.write("Username:<br>");
+		response.write("<input type=\"text\" name=\"username\">");
+		response.write("<br>");
+		response.write("Password:<br>");
+		response.write("<input type=\"password\" name=\"password\">");
+		response.write("<br><br>");
+		response.write("<input type=\"hidden\" name=\"clientId\" value=\"cid123456\">");
+		response.write("<input type=\"hidden\" name=\"returnUrl\" value=\"http%3A%2F%2Flocalhost%3A8888%2Fauthorize\">");
+		response.write("<input type=\"submit\" value=\"login\"></fieldset>");
+		response.write("</form>");
+
 		response.write("</body>");
 		response.write("</html>");
 		response.end();
@@ -80,7 +93,7 @@ var http = require("http"),
 		var clientid = urlObj.query.clientId;
 		var returnurl = urlObj.query.returnUrl;
 		var valid = false;
-
+		
 		for(i = 0; i < users.length; i++){
 			if(username == users[i].username && password == users[i].password){
 				valid = true;
@@ -91,7 +104,7 @@ var http = require("http"),
 		if(valid){
 			for(i = 0; i < clients.length; i++){
 				if(clientid == clients[i].cid){
-					response.writeHead(303, {"Location": returnUrl + "?" + qs.stringify({authzCode: clients[i].code})});
+					response.writeHead(303, {"Location": qs.unescape(returnurl) + "?" + qs.stringify({authzCode: clients[i].code})});
 					response.end();
 					return;
 				}
