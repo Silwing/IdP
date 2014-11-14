@@ -101,7 +101,7 @@ var http = require("http"),
 				for(var j = 0; j < clients.length; j++){
 					if(clientid == clients[j]){
 						var code = "ac" + acCounter;
-						accessArray.push({cid: clientid, uid: users[i].uid, code: code, token: "at" + atCounter});
+						accessArray.push({cid: clientid, uid: users[i].uid, code: code, token: "at" + atCounter, isAuthorized: false});
 						acCounter++;
 						atCounter++;
 						response.writeHead(303, {"Location": qs.unescape(returnurl) + "?" + qs.stringify({authzCode: code})});
@@ -128,9 +128,16 @@ var http = require("http"),
 		
 		for(i = 0; i < accessArray.length; i++){
 			if(clientid == accessArray[i].cid && acode == accessArray[i].code){
-				response.writeHead(200, {"Content-Type": "application/json"});
-				response.write(JSON.stringify({accessToken: accessArray[i].token, tokenType: "bearer"}));
-				response.end();
+				if(accessArray[i].isAuthorized) {
+					response.writeHead(400, {"Content-Type": "application/json"});
+					response.write(JSON.stringify({error: "Invalid authorization code"}));
+					response.end();
+				} else {
+					accessArray[i].isAuthorized = true;
+					response.writeHead(200, {"Content-Type": "application/json"});
+					response.write(JSON.stringify({accessToken: accessArray[i].token, tokenType: "bearer"}));
+					response.end();
+				}
 				return;
 			}
 		}
