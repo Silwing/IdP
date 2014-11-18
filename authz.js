@@ -2,7 +2,7 @@ var http = require("http"),
 	url = require("url"),
 	qs = require("querystring"),
 	users = [{uid: 1, username: "user1",password: "1234"},{uid: 2, username: "user2", password: "4321"}],
-	clients = ["cid123456"],
+	clients = [{cid: "cid123456", name: "Awesome App 1"}, {cid: "cid123457", name: "Awesome App 2"}],
 	accessArray = [],
 	acCounter = 0,
 	atCounter = 0;
@@ -53,8 +53,22 @@ var http = require("http"),
 		//todo: returner login side til browser
 		userLogin(request,response,urlObj);
 	}
+
+	function findClientFromId(clientId) {
+		for(var j = 0; j < clients.length; j++){
+			if(clientId == clients[j].cid){
+				return clients[j];
+			}
+		}
+		return undefined;
+	}
 	
 	function userLogin(request,response,urlObj){
+		var client = findClientFromId(urlObj.query.clientId);
+		if(!client) {
+			error(response, "Authorization request from invalid client");
+			return;
+		}
 		response.writeHead(200, {"Content-Type": "text/html"});
 		response.write("<!DOCTYPE html>");
 		response.write("<html>");
@@ -65,6 +79,7 @@ var http = require("http"),
 		
 		response.write("<h1>Please login</h1>");
 		response.write("<form action=\"authenticate\" method=\"GET\">");
+		response.write("<p>Please login to authorize with the application called '" + client.name + "'</p>");
 		response.write("<fieldset>");
 		response.write("<legend>Login information:</legend>");
 		response.write("Username:<br>");
@@ -73,7 +88,7 @@ var http = require("http"),
 		response.write("Password:<br>");
 		response.write("<input type=\"password\" name=\"password\">");
 		response.write("<br><br>");
-		response.write("<input type=\"hidden\" name=\"clientId\" value=\"cid123456\">");
+		response.write("<input type=\"hidden\" name=\"clientId\" value=\""+client.cid+"\">");
 		response.write("<input type=\"hidden\" name=\"returnUrl\" value=\""+urlObj.query.returnUrl+"\">");
 		response.write("<input type=\"submit\" value=\"login\"></fieldset>");
 		response.write("</form>");
@@ -92,19 +107,17 @@ var http = require("http"),
 		var password = urlObj.query.password;
 		var clientid = urlObj.query.clientId;
 		var returnurl = urlObj.query.returnUrl;
-				
+		
 		for(var i = 0; i < users.length; i++){
 			if(username == users[i].username && password == users[i].password){
-				for(var j = 0; j < clients.length; j++){
-					if(clientid == clients[j]){
-						var code = "ac" + acCounter;
-						accessArray.push({cid: clientid, uid: users[i].uid, code: code, token: "at" + atCounter, isAuthorized: false});
-						acCounter++;
-						atCounter++;
-						response.writeHead(303, {"Location": qs.unescape(returnurl) + "?" + qs.stringify({authzCode: code})});
-						response.end();
-						return;
-					}
+				if(findClientFromId(clientid)) {
+					var code = "ac" + acCounter;
+					accessArray.push({cid: clientid, uid: users[i].uid, code: code, token: "at" + atCounter, isAuthorized: false});
+					acCounter++;
+					atCounter++;
+					response.writeHead(303, {"Location": qs.unescape(returnurl) + "?" + qs.stringify({authzCode: code})});
+					response.end();
+					return;
 				}
 				error(response, "Invalid client ID");
 				return;
@@ -138,6 +151,7 @@ var http = require("http"),
 				return;
 			}
 		}
+		
 		error(response,JSON.stringify({error: "ClientId or authorization code not valid"}));		
 	}
 	
@@ -171,7 +185,7 @@ var http = require("http"),
 	
 	function checkClientId(response, clientid) {
 		for(var i = 0; i < clients.length; i++) {
-			if(clients[i] == clientid)
+			if(clients[i].cid == clientid)
 				return true;
 		}
 		error(response, "Client with id " + clientid + " is not a registered client");

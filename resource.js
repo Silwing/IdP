@@ -1,7 +1,7 @@
 var http = require("http"),
 	url = require("url"),
 	qs = require("querystring"),
-	authzServer = { hostname: "78.143.88.62", 
+	authzServer = { hostname: "localhost",//"78.143.88.62", 
 	                port: 8080,
 	                paths: {
 	                	verify: "/verify"
