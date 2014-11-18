@@ -1,13 +1,13 @@
 var http = require("http"),
 	url = require("url"),
 	qs = require("querystring"),
-	authzServer = { hostname: "localhost",//"78.143.88.62", 
+	authzServer = { hostname: "78.143.88.62", 
 	                port: 8080,
 	                paths: {
 	                	redirect: "/login",
 	                	access: "/access"
 	                }},
-	resServer = { hostname: "localhost",//"78.143.88.62",
+	resServer = { hostname: "78.143.88.62",
 	              port: 8081,
 	              paths: {
 	              	info: "/info"
